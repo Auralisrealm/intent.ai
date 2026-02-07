@@ -1,115 +1,148 @@
-import streamlit as st
+from flask import Flask, render_template, request, jsonify, send_file
 import time
+import random
 import csv
 import io
 import os
 import json
 import logging
-import base64
-import textwrap
-import random
 import openai
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+import base64
+import textwrap
 
-# -----------------------
-# LOGGING (same as yours)
-# -----------------------
-logging.basicConfig(level=logging.INFO)
+
+# =========================
+# LOGGING
+# =========================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+
 logger = logging.getLogger(__name__)
 
-st.set_page_config(layout="wide")
 
-st.title("Intent AI")
+# =========================
+# FLASK APP
+# =========================
+app = Flask(__name__, template_folder='templates')
 
-# =====================================================
-# SAME ANALYZE LOGIC (copied from your Flask version)
-# =====================================================
-def analyze_logic(user_input):
+
+# =========================
+# ERROR HANDLERS
+# =========================
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"status": "error", "message": "Endpoint not found"}), 404
+
+
+@app.errorhandler(500)
+def internal_error(e):
+    return jsonify({"status": "error", "message": "Internal server error"}), 500
+
+
+# =========================
+# HOME PAGE
+# =========================
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+
+# =========================
+# ANALYZE
+# =========================
+@app.route('/analyze', methods=['POST'])
+def analyze():
+
+    user_input = request.json.get('data')
 
     time.sleep(2)
 
-    api_key = os.getenv("OPENAI_API_KEY")
+    risk_level = "Medium"
 
-    if api_key:
-        openai.api_key = api_key
-        try:
-            resp = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role":"system","content":"You are an analyst."},
-                    {"role":"user","content":user_input}
-                ]
-            )
-            return resp["choices"][0]["message"]["content"]
-        except:
-            pass
+    if user_input and ("churn" in user_input.lower() or "loss" in user_input.lower()):
+        risk_level = "Critical"
 
-    # fallback (your mock)
-    risk = "Medium"
-    if "loss" in user_input.lower():
-        risk = "Critical"
-
-    return {
-        "risk_level": risk,
+    response_data = {
+        "status": "success",
+        "risk_level": risk_level,
         "summary": "Analysis indicates volatility in operational metrics.",
+        "predictions": [
+            {"metric": "Employee Attrition", "trend": "+12%", "status": "High Risk"},
+            {"metric": "Customer Churn", "trend": "+5%", "status": "Warning"}
+        ],
         "recommendations": [
             "Initiate retention program",
-            "Automate support",
-            "Improve workflows"
+            "Automate workflows"
         ]
     }
 
-
-# =====================================================
-# UI PART (replaces Flask pages)
-# =====================================================
-
-tab1, tab2 = st.tabs(["Text Analysis", "CSV Upload"])
-
-# -------------------
-# TEXT ANALYSIS TAB
-# -------------------
-with tab1:
-    user_input = st.text_area("Enter business context")
-
-    if st.button("Analyze"):
-        result = analyze_logic(user_input)
-        st.json(result)
+    return jsonify(response_data)
 
 
-# -------------------
-# CSV UPLOAD TAB
-# -------------------
-with tab2:
+# =========================
+# EXPORT PDF
+# =========================
+@app.route('/export', methods=['POST'])
+def export_pdf():
 
-    file = st.file_uploader("Upload CSV", type=["csv"])
+    payload = request.get_json(force=True)
 
-    if file:
-        text = file.read().decode("utf-8")
+    summary = payload.get('summary', '')
+    risk = payload.get('risk', '')
 
-        stream = io.StringIO(text)
-        reader = csv.reader(stream)
+    buffer = io.BytesIO()
 
-        values = []
+    c = canvas.Canvas(buffer, pagesize=letter)
 
-        for row in reader:
-            for cell in row:
-                try:
-                    values.append(float(cell))
-                    break
-                except:
-                    pass
+    c.drawString(40, 750, f"Risk: {risk}")
+    c.drawString(40, 730, summary)
 
-        if values:
-            st.line_chart(values)
+    c.save()
 
-            first = values[0]
-            last = values[-1]
+    buffer.seek(0)
 
-            trend = ((last-first)/abs(first))*100 if first!=0 else 0
+    return send_file(buffer, mimetype='application/pdf', as_attachment=True, download_name='report.pdf')
 
-            st.success(f"Trend: {trend:.1f}%")
 
-        else:
-            st.error("No numeric data found")
+# =========================
+# CSV UPLOAD
+# =========================
+@app.route('/upload', methods=['POST'])
+def upload():
+
+    file = request.files.get('file')
+
+    if not file:
+        return jsonify({"status": "error"}), 400
+
+    text = file.stream.read().decode('utf-8')
+
+    reader = csv.reader(io.StringIO(text))
+
+    values = []
+
+    for row in reader:
+        for cell in row:
+            try:
+                values.append(float(cell))
+                break
+            except:
+                pass
+
+    return jsonify({
+        "status": "success",
+        "values": values
+    })
+
+
+# =========================
+# 🔥 ONLY IMPORTANT FIX
+# RUN FLASK PROPERLY
+# =========================
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False)
