@@ -1,3 +1,7 @@
+import streamlit as st
+import subprocess
+import time
+import webbrowser
 from flask import Flask, render_template, request, jsonify, send_file
 import time
 import random
@@ -352,4 +356,12 @@ def upload():
     except Exception as e:
         logger.error(f"Upload processing error: {str(e)}", exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
+# start flask server in background
+subprocess.Popen(["python", "intent/app.py"])
+
+time.sleep(2)
+
+st.title("Intent AI")
+
+st.components.v1.iframe("http://localhost:5000", height=800)
 
