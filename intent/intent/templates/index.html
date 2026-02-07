@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intent | AI Decision Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CUSTOM STYLES --- */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; /* Slate 900 */
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 70%);
+        } 
+
+        /* The Gradient Text Effect */
+        .gradient-text {
+            background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glassmorphism Card Effect */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* AI Pulsing Loader */
+        .ai-pulse {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #60A5FA;
+            box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7);
+            animation: pulse-blue 2s infinite;
+        }
+
+        @keyframes pulse-blue {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(96, 165, 250, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); }
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col">
+
+    <nav class="border-b border-white/10 p-4 backdrop-blur-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center max-w-5xl">
+            <div class="flex items-center gap-2">
+                <div class="h-3 w-3 bg-blue-400 rounded-full"></div>
+                <h1 class="text-xl font-bold tracking-tight">Intent<span class="text-slate-500">_AI</span></h1>
+            </div>
+            <div class="text-xs font-mono text-slate-400 border border-slate-700 px-2 py-1 rounded">v1.0 MVP</div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-6 flex-grow max-w-4xl">
+        
+        <div class="text-center mb-10 mt-8 space-y-4">
+            <h2 class="text-5xl font-bold tracking-tight">
+                Predict the <span class="gradient-text">Uncertain</span>
+            </h2>
+            <p class="text-slate-400 text-lg max-w-xl mx-auto">
+                Stop guessing. Upload your business context and let Intent's AI engine detect hidden risks and strategic opportunities.
+            </p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-1 shadow-2xl mb-8">
+            <div class="bg-slate-900/50 rounded-xl p-6">
+                <label class="flex items-center gap-2 text-xs font-bold text-blue-400 mb-3 tracking-wider uppercase">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Context Input
+                </label>
+                <textarea id="businessInput" rows="4" 
+                    class="w-full bg-slate-800/50 text-white rounded-lg p-4 border border-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder-slate-600 font-light" 
+                    placeholder="Describe your situation (e.g., 'We are facing high employee churn in the engineering department and revenue is flat quarter-over-quarter...')"
+                ></textarea>
+                <div class="mt-3 flex flex-wrap items-center gap-3">
+                    <input id="fileInput" type="file" accept=".csv" class="h-10 px-3 text-sm text-slate-300 rounded bg-slate-800/50 border border-slate-700" />
+                    <select id="columnSelect" class="h-10 bg-slate-800/50 text-slate-300 rounded px-3 text-sm appearance-none" disabled>
+                        <option value="">Auto-detect Y column</option>
+                    </select>
+                    <select id="xColumnSelect" class="h-10 bg-slate-800/50 text-slate-300 rounded px-3 text-sm appearance-none" disabled>
+                        <option value="">Auto X (row index)</option>
+                    </select>
+                    <button onclick="uploadFile()" class="h-10 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 rounded-lg transition shadow-lg shadow-emerald-900/20 flex items-center">Upload CSV</button>
+                    <div class="ml-4 flex items-center gap-2">
+                        <button onclick="loadDemo('demo_data/demo_growth.csv')" class="h-10 px-3 rounded bg-slate-700/40 text-slate-200 text-xs flex items-center">Demo Growth</button>
+                        <button onclick="loadDemo('demo_data/demo_decline.csv')" class="h-10 px-3 rounded bg-slate-700/40 text-slate-200 text-xs flex items-center">Demo Decline</button>
+                        <button onclick="loadDemo('demo_data/demo_noise.csv')" class="h-10 px-3 rounded bg-slate-700/40 text-slate-200 text-xs flex items-center">Demo Noise</button>
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <span class="text-xs text-slate-500">AI Model: Intent-v1 (Mock)</span>
+                    <button onclick="analyzeData()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-6 rounded-lg transition shadow-lg shadow-blue-900/20 flex items-center gap-2 group">
+                        <span>Run Analysis</span>
+                        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loader" class="hidden flex flex-col justify-center items-center py-12 space-y-4">
+            <div class="ai-pulse"></div>
+            <p class="text-slate-400 text-sm animate-pulse">Analyzing patterns & generating strategy...</p>
+        </div>
+
+        <div id="resultsArea" class="hidden animate-fade-in-up">
+            
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 border-l-4 border-l-blue-500 p-6 rounded-r-xl mb-8 shadow-lg">
+                <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                    Analysis Complete 
+                    <span id="riskBadge" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-white">Calculating...</span>
+                </h3>
+                <p id="summaryText" class="text-slate-300 font-light leading-relaxed">...</p>
+                    <div class="mt-3 flex justify-end">
+                        <button onclick="exportServer()" class="h-9 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 rounded-lg transition shadow">Export Report</button>
+                    </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-xl p-6">
+                    <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-white/5 pb-2">Predictive Metrics</h4>
+                    <div id="predictionsContainer" class="space-y-4">
+                        </div>
+                </div>
+
+                <div class="glass-card rounded-xl p-6">
+                    <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-white/5 pb-2">Strategic Actions</h4>
+                    <ul id="actionsContainer" class="space-y-4">
+                        </ul>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-6 mt-6">
+                <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-white/5 pb-2">Uploaded Metric</h4>
+                <canvas id="chartCanvas" height="160"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center p-6 text-slate-600 text-xs">
+        &copy; 2026 Intent AI.
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Chart.js instance
+        let metricChart = null;
+
+        // When a file is selected, read its header row and populate the column selectors
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const f = e.target.files[0];
+            const sel = document.getElementById('columnSelect');
+            const xsel = document.getElementById('xColumnSelect');
+            sel.innerHTML = '<option value="">Auto-detect Y column</option>';
+            xsel.innerHTML = '<option value="">Auto X (row index)</option>';
+            sel.disabled = true;
+            xsel.disabled = true;
+            if(!f) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const text = ev.target.result;
+                const lines = text.split(/\r?\n/);
+                if(lines.length === 0) return;
+                const first = lines[0];
+                const cols = first.split(',').map(s => s.trim());
+                if(cols.length > 1) {
+                    cols.forEach((c, i) => {
+                        const opt = document.createElement('option');
+                        opt.value = c || String(i);
+                        opt.text = c || `Column ${i}`;
+                        sel.appendChild(opt);
+                        const opt2 = document.createElement('option');
+                        opt2.value = c || String(i);
+                        opt2.text = c || `Column ${i}`;
+                        xsel.appendChild(opt2);
+                    });
+                    sel.disabled = false;
+                    xsel.disabled = false;
+                }
+                        };
+                        reader.readAsText(f);
+        });
+
+        function renderChart(labels, values, yLabel) {
+            const ctx = document.getElementById('chartCanvas').getContext('2d');
+            if(metricChart) metricChart.destroy();
+            metricChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: yLabel || 'Uploaded Metric',
+                        data: values,
+                        borderColor: '#60A5FA',
+                        backgroundColor: 'rgba(96,165,250,0.08)',
+                        tension: 0.3,
+                        pointRadius: 3,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' } },
+                        y: { ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } }
+                }
+            });
+        }
+
+        // Load a demo CSV from server-side demo_data folder (fetch as text and POST to /upload)
+        async function loadDemo(path) {
+            const loader = document.getElementById('loader');
+            const results = document.getElementById('resultsArea');
+            loader.classList.remove('hidden');
+            results.classList.add('hidden');
+            try {
+                const resp = await fetch(path);
+                const text = await resp.text();
+                // create a blob and FormData to send to /upload
+                const blob = new Blob([text], { type: 'text/csv' });
+                const form = new FormData();
+                form.append('file', blob, path.split('/').pop());
+                const out = await fetch('/upload', { method: 'POST', body: form });
+                const data = await out.json();
+                if(data.status !== 'success') {
+                    alert(data.message || 'Demo load failed');
+                    loader.classList.add('hidden');
+                    return;
+                }
+                // populate column selects if headers are returned
+                const sel = document.getElementById('columnSelect');
+                const xsel = document.getElementById('xColumnSelect');
+                sel.innerHTML = '<option value="">Auto-detect Y column</option>';
+                xsel.innerHTML = '<option value="">Auto X (row index)</option>';
+                if(data.headers && data.headers.length) {
+                    data.headers.forEach((h, i) => {
+                        const opt = document.createElement('option');
+                        opt.value = h || String(i);
+                        opt.text = h || `Column ${i}`;
+                        sel.appendChild(opt);
+                        const opt2 = document.createElement('option');
+                        opt2.value = h || String(i);
+                        opt2.text = h || `Column ${i}`;
+                        xsel.appendChild(opt2);
+                    });
+                    sel.disabled = false;
+                    xsel.disabled = false;
+                    // default selections: Y = last header, X = first header
+                    sel.value = data.headers[data.headers.length - 1];
+                    xsel.value = data.headers[0];
+                }
+
+                // reuse update path
+                document.getElementById('summaryText').innerText = data.summary || '';
+                const pred = data.predictions[0];
+                const riskBadge = document.getElementById('riskBadge');
+                riskBadge.innerText = pred.status;
+                if(pred.status === 'High Risk') {
+                    riskBadge.className = "text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded border border-red-500/30";
+                } else {
+                    riskBadge.className = "text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30";
+                }
+                const predsDiv = document.getElementById('predictionsContainer');
+                predsDiv.innerHTML = '';
+                data.predictions.forEach(p => {
+                    const isHighRisk = p.status === 'High Risk' || p.status === 'Critical';
+                    const trendColor = isHighRisk ? 'text-red-400' : 'text-emerald-400';
+                    const icon = isHighRisk 
+                        ? '<svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>'
+                        : '<svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>';
+
+                    predsDiv.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-slate-800/40 rounded-lg border border-white/5">
+                            <div>
+                                <p class="text-sm font-medium text-slate-200">${p.metric}</p>
+                                <p class="text-xs text-slate-500 uppercase">${p.status}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center gap-1 justify-end ${trendColor} font-mono font-bold">
+                                    ${p.trend}
+                                    ${icon}
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                const actionsUl = document.getElementById('actionsContainer');
+                actionsUl.innerHTML = '';
+                data.recommendations.forEach((rec, index) => {
+                    actionsUl.innerHTML += `
+                    <li class="flex items-start gap-3 text-sm text-slate-300 p-2 hover:bg-white/5 rounded transition cursor-default">
+                        <span class="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/30">${index + 1}</span>
+                        <span>${rec}</span>
+                    </li>`;
+                });
+
+                renderChart(data.labels, data.values);
+                loader.classList.add('hidden');
+                results.classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                alert('Demo load failed. Check console.');
+                loader.classList.add('hidden');
+            }
+        }
+        async function analyzeData() {
+            const input = document.getElementById('businessInput').value;
+            if(!input) return alert("Please enter some business context first.");
+
+            // UI Transitions
+            const loader = document.getElementById('loader');
+            const results = document.getElementById('resultsArea');
+            
+            loader.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            try {
+                // Call Python Backend
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: input })
+                });
+                
+                const data = await response.json();
+
+                // 1. Update Risk Badge
+                const riskBadge = document.getElementById('riskBadge');
+                riskBadge.innerText = data.risk_level;
+                if(data.risk_level === "Critical") {
+                    riskBadge.className = "text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded border border-red-500/30";
+                } else {
+                    riskBadge.className = "text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30";
+                }
+
+                // 2. Update Summary
+                document.getElementById('summaryText').innerText = data.summary;
+                
+                // 3. Update Predictions (Left Col)
+                const predsDiv = document.getElementById('predictionsContainer');
+                predsDiv.innerHTML = '';
+                data.predictions.forEach(p => {
+                    // Dynamic color for trends
+                    const isHighRisk = p.status === 'High Risk' || p.status === 'Critical';
+                    const trendColor = isHighRisk ? 'text-red-400' : 'text-emerald-400';
+                    const icon = isHighRisk 
+                        ? '<svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>'
+                        : '<svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>';
+
+                    predsDiv.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-slate-800/40 rounded-lg border border-white/5">
+                            <div>
+                                <p class="text-sm font-medium text-slate-200">${p.metric}</p>
+                                <p class="text-xs text-slate-500 uppercase">${p.status}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center gap-1 justify-end ${trendColor} font-mono font-bold">
+                                    ${p.trend}
+                                    ${icon}
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                // 4. Update Actions (Right Col)
+                const actionsUl = document.getElementById('actionsContainer');
+                actionsUl.innerHTML = '';
+                data.recommendations.forEach((rec, index) => {
+                    actionsUl.innerHTML += `
+                    <li class="flex items-start gap-3 text-sm text-slate-300 p-2 hover:bg-white/5 rounded transition cursor-default">
+                        <span class="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/30">${index + 1}</span>
+                        <span>${rec}</span>
+                    </li>`;
+                });
+
+                // Show Results
+                loader.classList.add('hidden');
+                results.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert("AI processing failed. Please check the console.");
+                loader.classList.add('hidden');
+            }
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            if(!fileInput.files || fileInput.files.length === 0) return alert('Please select a CSV file first.');
+            const loader = document.getElementById('loader');
+            const results = document.getElementById('resultsArea');
+            loader.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            try {
+                const form = new FormData();
+                form.append('file', fileInput.files[0]);
+                const col = document.getElementById('columnSelect').value;
+                const xcol = document.getElementById('xColumnSelect').value;
+                if (col) form.append('column', col);
+                if (xcol) form.append('x_column', xcol);
+
+                const resp = await fetch('/upload', { method: 'POST', body: form });
+                const data = await resp.json();
+                if(data.status !== 'success') {
+                    alert(data.message || 'Upload failed');
+                    loader.classList.add('hidden');
+                    return;
+                }
+
+                // Reuse existing UI update logic for predictions/actions
+                const riskBadge = document.getElementById('riskBadge');
+                const pred = data.predictions[0];
+                riskBadge.innerText = pred.status;
+                if(pred.status === 'High Risk') {
+                    riskBadge.className = "text-xs bg-red-500/20 text-red-300 px-2 py-0.5 rounded border border-red-500/30";
+                } else {
+                    riskBadge.className = "text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30";
+                }
+
+                document.getElementById('summaryText').innerText = data.summary || '';
+
+                const predsDiv = document.getElementById('predictionsContainer');
+                predsDiv.innerHTML = '';
+                data.predictions.forEach(p => {
+                    const isHighRisk = p.status === 'High Risk' || p.status === 'Critical';
+                    const trendColor = isHighRisk ? 'text-red-400' : 'text-emerald-400';
+                    const icon = isHighRisk 
+                        ? '<svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>'
+                        : '<svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>';
+
+                    predsDiv.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-slate-800/40 rounded-lg border border-white/5">
+                            <div>
+                                <p class="text-sm font-medium text-slate-200">${p.metric}</p>
+                                <p class="text-xs text-slate-500 uppercase">${p.status}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center gap-1 justify-end ${trendColor} font-mono font-bold">
+                                    ${p.trend}
+                                    ${icon}
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                const actionsUl = document.getElementById('actionsContainer');
+                actionsUl.innerHTML = '';
+                data.recommendations.forEach((rec, index) => {
+                    actionsUl.innerHTML += `
+                    <li class="flex items-start gap-3 text-sm text-slate-300 p-2 hover:bg-white/5 rounded transition cursor-default">
+                        <span class="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/30">${index + 1}</span>
+                        <span>${rec}</span>
+                    </li>`;
+                });
+
+                // render chart with chosen Y label (or fallback)
+                const yLabel = (document.getElementById('columnSelect').value) || (data.headers && data.headers.length ? data.headers[data.headers.length-1] : 'Uploaded Metric');
+                renderChart(data.labels, data.values, yLabel);
+
+                loader.classList.add('hidden');
+                results.classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                alert('Upload failed. Check console.');
+                loader.classList.add('hidden');
+            }
+        }
+
+        async function exportServer() {
+            const summary = document.getElementById('summaryText').innerText;
+            const riskBadge = document.getElementById('riskBadge').innerText;
+            const predsDiv = document.getElementById('predictionsContainer');
+            const actionsUl = document.getElementById('actionsContainer');
+
+            const predictions = Array.from(predsDiv.querySelectorAll('.flex')).map(el => ({
+                metric: el.querySelector('.font-medium').innerText,
+                trend: el.querySelector('.font-mono').innerText.trim(),
+                status: el.querySelectorAll('p')[1].innerText
+            }));
+
+            const recommendations = Array.from(actionsUl.querySelectorAll('li')).map(el => el.innerText.trim());
+
+            const chart = metricChart ? metricChart.canvas.toDataURL() : null;
+
+            const payload = {
+                summary,
+                risk: riskBadge,
+                predictions,
+                recommendations,
+                chart
+            };
+
+            try {
+                const resp = await fetch('/export', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (resp.ok) {
+                    const blob = await resp.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'intent_report.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert('PDF export failed');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Export error. Check console.');
+            }
+        }
+    </script>
+</body>
+</html>

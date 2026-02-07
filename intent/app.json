@@ -1,0 +1,20 @@
+{
+  "name": "intent-ai-demo",
+  "description": "Intent AI demo application",
+  "repository": "",
+  "keywords": ["intent", "ai", "hackathon"],
+  "buildpacks": [
+    { "url": "heroku/python" }
+  ],
+  "env": {
+    "OPENAI_API_KEY": {
+      "description": "OpenAI API key (optional)",
+      "required": false
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  }
+}

@@ -1,0 +1,9 @@
+flask==3.1.2
+openai==1.52.0
+gunicorn==23.0.0
+python-dotenv==1.0.1
+reportlab==4.2.5
+pytest==8.3.3
+streamlit==1.28.1
+pandas==2.1.4
+requests==2.31.0
