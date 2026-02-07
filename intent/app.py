@@ -52,17 +52,6 @@ st.markdown("""
         margin-bottom: 20px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
-    
-    /* STATUS INDICATORS */
-    .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
 
     /* HEADERS */
     h1 {
@@ -79,7 +68,7 @@ st.markdown("""
         margin-bottom: 15px;
     }
 
-    /* BUTTONS - STRATEGIC ACTION STYLE */
+    /* BUTTONS */
     .stButton>button {
         background: #FFFFFF;
         color: #000000;
@@ -117,16 +106,26 @@ def analyze_intent_logic(text):
     Simulates a sophisticated NLP decision engine.
     Detects context, urgency, and strategic category.
     """
-    text = text.lower()
-    
+    text_lower = text.lower()
+    word_count = len(text.split())
+
+    # --- LOGIC FIX: FILTER LOW QUALITY INPUT ---
+    # If the user just types "hi", "hello", or very short strings, reject it.
+    if word_count < 3 and "shut" not in text_lower:
+        risk_score = 0
+        category = "AWAITING STRATEGIC INPUT"
+        action = "PLEASE PROVIDE CONTEXTUAL INTEL"
+        color = "#666666" # Neutral Grey
+        return risk_score, category, action, color
+
     # 1. RISK DETECTION
-    high_risk_triggers = ['high', 'critical', 'urgent', 'fail', 'loss', 'danger', 'crash', 'emergency', 'breach']
-    medium_risk_triggers = ['warning', 'check', 'verify', 'fluctuation', 'monitor', 'risk']
+    high_risk_triggers = ['high', 'critical', 'urgent', 'fail', 'loss', 'danger', 'crash', 'emergency', 'breach', 'competitor', 'down']
+    medium_risk_triggers = ['warning', 'check', 'verify', 'fluctuation', 'monitor', 'risk', 'margin']
     
     risk_score = 0
-    if any(word in text for word in high_risk_triggers):
+    if any(word in text_lower for word in high_risk_triggers):
         risk_score = random.randint(85, 99)
-    elif any(word in text for word in medium_risk_triggers):
+    elif any(word in text_lower for word in medium_risk_triggers):
         risk_score = random.randint(45, 75)
     else:
         risk_score = random.randint(12, 35) # Default to stable/low risk
@@ -149,7 +148,6 @@ def analyze_intent_logic(text):
 
 def draw_network_topology():
     """Generates the 'Brain' of the OS"""
-    # Create a cleaner, more geometric 3D network
     X, y = make_blobs(n_samples=60, centers=3, n_features=3, random_state=int(time.time()))
     
     trace_nodes = go.Scatter3d(
@@ -159,7 +157,6 @@ def draw_network_topology():
         name='Data Nodes'
     )
     
-    # Elegant connections
     x_lines, y_lines, z_lines = [], [], []
     for i in range(len(X)-1):
         if random.random() > 0.85:
@@ -192,10 +189,8 @@ def generate_strategic_memo(text, score, category, action):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
     
-    # Enterprise Memo Formatting
     c.setFont("Helvetica-Bold", 16)
     c.drawString(50, 750, "INTENT AI // EXECUTIVE STRATEGY BRIEF")
-    
     c.setStrokeColorRGB(0, 0, 0)
     c.line(50, 740, 550, 740)
     
@@ -218,7 +213,6 @@ def generate_strategic_memo(text, score, category, action):
     c.setFont("Helvetica-Bold", 12)
     c.drawString(50, 560, "3. DECODED SIGNAL")
     
-    # Text wrap logic
     text_obj = c.beginText(50, 540)
     text_obj.setFont("Helvetica", 10)
     words = text.split()
@@ -241,19 +235,15 @@ def generate_strategic_memo(text, score, category, action):
 with st.sidebar:
     st.markdown("## INTENT AI")
     st.caption("v 2.4.0 | ENTERPRISE OS")
-    
     st.markdown("---")
     menu = st.radio("SYSTEM MODULES", 
         ["Strategic Decision Core", "Data Ingestion", "Global Logs"],
         label_visibility="collapsed"
     )
     st.markdown("---")
-    
-    # Live System Telemetry
     col1, col2 = st.columns(2)
     col1.metric("LATENCY", "12ms")
     col2.metric("UPTIME", "99.99%")
-    
     st.markdown("### CONNECTED NODES")
     st.code("CRM: Salesforce\nERP: SAP S/4HANA\nDATA: Snowflake", language="text")
 
@@ -263,13 +253,11 @@ with st.sidebar:
 
 if menu == "Strategic Decision Core":
     
-    # TOP HEADER - OS STYLE
     col_t1, col_t2 = st.columns([4, 1])
     with col_t1:
         st.title("Strategic Decision Core")
         st.caption(f"SYSTEM DATE: {datetime.now().strftime('%A, %B %d, %Y')}")
     with col_t2:
-        # Status Light
         st.markdown('<div style="text-align:right; color:#34C759; font-weight:bold;">● SYSTEM ONLINE</div>', unsafe_allow_html=True)
 
     st.markdown("---")
@@ -302,7 +290,7 @@ if menu == "Strategic Decision Core":
         for i, step in enumerate(steps):
             status_text.markdown(f"**// {step}**")
             progress_bar.progress((i + 1) * 25)
-            time.sleep(0.4) # Fast but noticeable
+            time.sleep(0.3) 
             
         status_text.empty()
         progress_bar.empty()
@@ -313,7 +301,6 @@ if menu == "Strategic Decision Core":
         # 3. RESULTS DASHBOARD
         st.markdown(f"### ⚡ DECISION INTELLIGENCE OUTPUT")
         
-        # Top Row: KPI Cards
         c1, c2, c3 = st.columns(3)
         
         with c1:
@@ -340,23 +327,21 @@ if menu == "Strategic Decision Core":
             </div>
             """, unsafe_allow_html=True)
 
-        # Bottom Row: Visuals & Projection
         col_vis1, col_vis2 = st.columns([2, 1])
         
         with col_vis1:
             st.markdown('<div class="os-card">', unsafe_allow_html=True)
             st.markdown("### 📈 PROJECTED OUTCOME TRAJECTORY")
             
-            # Dynamic Dates for Chart
             dates = [datetime.now() + timedelta(days=i) for i in range(14)]
-            
-            # Logic for curve based on risk
             base = 100
-            if risk_score > 70:
-                # Downward trend simulation
+            
+            # LOGIC FIX: If score is 0 (Bad Input), flat line. If High Risk, drop. If Low Risk, rise.
+            if risk_score == 0:
+                 values = [100 for i in range(14)]
+            elif risk_score > 70:
                 values = [base - (i * random.uniform(2, 5)) for i in range(14)]
             else:
-                # Upward trend simulation
                 values = [base + (i * random.uniform(1, 4)) for i in range(14)]
                 
             df_chart = pd.DataFrame({"Date": dates, "Index": values})
@@ -370,7 +355,7 @@ if menu == "Strategic Decision Core":
                 margin=dict(l=0, r=0, t=10, b=0),
                 height=300
             )
-            fig.update_traces(line_color=color_code, fillcolor=color_code.replace(")", ", 0.2)"))
+            fig.update_traces(line_color=color_code, fillcolor=color_code)
             st.plotly_chart(fig, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
             
@@ -379,7 +364,6 @@ if menu == "Strategic Decision Core":
             st.markdown("### 🕸️ CONTEXT TOPOLOGY")
             st.plotly_chart(draw_network_topology(), use_container_width=True)
             
-            # Download Button
             pdf_data = generate_strategic_memo(user_input, risk_score, category, action)
             st.download_button(
                 label="📄 DOWNLOAD STRATEGY MEMO",
