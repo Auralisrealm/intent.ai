@@ -353,5 +353,3 @@ def upload():
         logger.error(f"Upload processing error: {str(e)}", exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
