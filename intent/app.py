@@ -2,272 +2,290 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import time
-import io
-import random
-from datetime import datetime, timedelta
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
 import plotly.graph_objects as go
-import plotly.express as px
-from sklearn.datasets import make_blobs
+from datetime import datetime
 
 # =========================
-# 1. KERNEL OPTIMIZATION (CACHE LAYER)
-# =========================
-# We cache the expensive logic so it doesn't re-run on every UI interaction.
-# This prevents the app from "thinking" when you just want to click a button.
-@st.cache_data(show_spinner=False)
-def get_neural_data():
-    """Generates 3D coordinates once and caches them."""
-    X, _ = make_blobs(n_samples=50, centers=3, n_features=3, random_state=42)
-    return X
-
-@st.cache_data(show_spinner=False)
-def analyze_intent_logic(text):
-    """Simulates the heavy AI processing with caching."""
-    # Simulate processing time only on NEW inputs
-    time.sleep(0.5) 
-    
-    text_lower = text.lower()
-    high_risk = ['crisis', 'fail', 'breach', 'attack', 'crash', 'urgent', 'critical']
-    med_risk = ['risk', 'monitor', 'check', 'verify', 'fluctuation']
-    
-    if any(w in text_lower for w in high_risk):
-        return random.randint(88, 99), "CRITICAL THREAT VECTOR", "INITIATE CONTAINMENT", "#FF2A2A"
-    elif any(w in text_lower for w in med_risk):
-        return random.randint(50, 75), "STRATEGIC VOLATILITY", "DEPLOY COUNTER-STRATEGY", "#FFD700"
-    else:
-        return random.randint(15, 30), "OPERATIONAL NOMINAL", "OPTIMIZE GROWTH VECTOR", "#00FF99"
-
-# =========================
-# 2. SYSTEM CONFIGURATION
+# 1. PAGE CONFIGURATION & CSS (THE "TRILLION DOLLAR" LOOK)
 # =========================
 st.set_page_config(
     page_title="INTENT AI | DECISION OS",
     page_icon="💠",
     layout="wide",
-    initial_sidebar_state="collapsed",
-    menu_items={
-        'Get Help': 'https://www.intent.ai/help',
-        'Report a bug': "https://www.intent.ai/bug",
-        'About': "# Intent AI Enterprise OS v2.0"
-    }
+    initial_sidebar_state="collapsed"
 )
 
-# =========================
-# 3. NON-BLOCKING UI ENGINE
-# =========================
-# FIX: Replaced slow @import with standard Link tags and font-display: swap
-# FIX: Added meta description injection hack for SEO
+# Custom CSS for that "Iron Man / Enterprise" feel
 st.markdown("""
-<head>
-    <meta name="description" content="Intent AI: The Enterprise Decision Operating System. Convert live data into strategic action.">
-</head>
 <style>
-    /* OPTIMIZED FONT LOADING */
-    @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap; /* Fixes render blocking */
-        src: url(https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff) format('woff');
-    }
-
-    /* GLOBAL RESET & DARK MODE */
+    /* GLOBAL DARK THEME */
     .stApp {
-        background-color: #000000;
-        background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
-        background-size: 40px 40px;
+        background-color: #050505;
         color: #E0E0E0;
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* GLASSMORPHISM CARDS (Optimized Blurs) */
-    .glass-panel {
-        background: rgba(20, 20, 20, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(8px); /* Reduced blur for performance */
-        -webkit-backdrop-filter: blur(8px);
-        border-radius: 4px;
-        padding: 24px;
-        margin-bottom: 20px;
-    }
-
-    /* TYPOGRAPHY hierarchy fixed for SEO */
-    h1 { font-size: 2.5rem; font-weight: 700; color: #FFF; letter-spacing: -1px; }
-    h2 { font-size: 1.5rem; font-weight: 600; color: #EEE; }
-    h3 { font-size: 1.1rem; font-weight: 600; color: #CCC; }
-    
-    .mono-text {
-        font-family: monospace;
-        font-size: 0.85rem;
-        color: #888;
-        letter-spacing: 1px;
-        text-transform: uppercase;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
     
-    .big-metric {
-        font-family: monospace;
-        font-size: 3rem;
-        font-weight: 700;
-        color: #FFFFFF;
-    }
-
-    /* CSS BUTTONS */
-    div.stButton > button {
-        background: #E0E0E0;
-        color: #000;
-        border: none;
-        padding: 12px 24px;
-        font-weight: 700;
-        text-transform: uppercase;
-        width: 100%;
-        transition: transform 0.1s;
-    }
-    div.stButton > button:hover {
-        background: #FFF;
-        transform: scale(1.01);
-    }
-    div.stButton > button:active {
-        transform: scale(0.98);
-    }
-
-    /* STATUS INDICATORS */
-    .status-dot {
-        height: 10px;
-        width: 10px;
-        background-color: #00FF99;
-        border-radius: 50%;
-        display: inline-block;
-        box-shadow: 0 0 8px #00FF99;
-    }
-    
-    /* Remove default streamlit junk */
+    /* HIDE STREAMLIT BRANDING */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+
+    /* INPUT FIELD STYLING */
+    .stTextArea textarea {
+        background-color: #111;
+        color: #00FFC2;
+        border: 1px solid #333;
+        font-family: 'Courier New', monospace;
+    }
+    .stTextArea textarea:focus {
+        border: 1px solid #00FFC2;
+        box-shadow: 0 0 10px #00FFC2;
+    }
+
+    /* CUSTOM CARDS (GLASSMORPHISM) */
+    .metric-card {
+        background: rgba(20, 20, 20, 0.8);
+        border-left: 3px solid #333;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        transform: scale(1.02);
+        border-left: 3px solid #00FFC2;
+    }
+
+    /* TYPOGRAPHY */
+    h1, h2, h3 { letter-spacing: -0.5px; }
+    .highlight { color: #00FFC2; font-weight: bold; }
+    .alert { color: #FF4B4B; font-weight: bold; }
+    .subtext { font-size: 0.8em; color: #888; }
+    .mono { font-family: 'Courier New', monospace; }
+
+    /* BUTTON STYLING */
+    div.stButton > button {
+        background: linear-gradient(90deg, #00FFC2 0%, #008F6B 100%);
+        color: #000;
+        font-weight: bold;
+        border: none;
+        padding: 0.75rem 2rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        width: 100%;
+    }
+    div.stButton > button:hover {
+        box-shadow: 0 0 15px #00FFC2;
+        color: #fff;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# 4. LIGHTWEIGHT VISUALIZATION
+# 2. INTELLIGENCE ENGINE (SOLVING THE "UNRELATED ANSWER" PROBLEM)
+# =========================
+def get_strategic_response(query):
+    """
+    This simulates a high-end LLM/RAG pipeline using keyword heuristics 
+    to ensure the answer ALWAYS matches the user's specific context.
+    """
+    q = query.lower()
+    
+    # SCENARIO A: CYBERSECURITY (Matches your screenshot)
+    if any(x in q for x in ['cyber', 'security', 'breach', 'vulnerability', 'attack']):
+        return {
+            "status": "CRITICAL EXPOSURE",
+            "color": "#FF4B4B",
+            "confidence": "98.4%",
+            "analysis": "Vulnerability identified in Legacy ERP Node 4. Estimated data exposure: 1.2M records.",
+            "strategy": "IMMEDIATE CONTAINMENT PROTOCOL",
+            "actions": [
+                "1. Isolate ERP Sector 7 immediately (Stop API traffic).",
+                "2. Deploy 'Dark-Comms' strategy to minimize stock volatility.",
+                "3. Prepare GDPR/CCPA compliance brief for Legal."
+            ],
+            "impact_data": [100, 80, 45, 30, 25, 60, 85], # Dip and recovery
+            "impact_label": "Brand Equity Projection (6 Months)"
+        }
+
+    # SCENARIO B: REVENUE/SALES
+    elif any(x in q for x in ['revenue', 'sales', 'growth', 'q3', 'profit']):
+        return {
+            "status": "OPPORTUNITY VECTOR",
+            "color": "#00FFC2",
+            "confidence": "92.1%",
+            "analysis": "Market signals indicate under-penetration in APAC region. Competitor X is weak there.",
+            "strategy": "AGGRESSIVE EXPANSION",
+            "actions": [
+                "1. Reallocate 15% of EU marketing budget to APAC.",
+                "2. Activate channel partners in Singapore/Tokyo.",
+                "3. Launch flash-incentive for enterprise tier."
+            ],
+            "impact_data": [50, 52, 55, 65, 80, 95, 110], # Growth curve
+            "impact_label": "Revenue Uplift Projection ($M)"
+        }
+
+    # SCENARIO C: SUPPLY CHAIN
+    elif any(x in q for x in ['supply', 'logistics', 'shipping', 'delay', 'inventory']):
+        return {
+            "status": "LOGISTICAL RISK",
+            "color": "#FFD700",
+            "confidence": "89.5%",
+            "analysis": "Route congestion detected in Panama Canal. 14 Days added to lead time.",
+            "strategy": "ROUTE DIVERSIFICATION",
+            "actions": [
+                "1. Trigger air-freight for Class A inventory.",
+                "2. Notify distributors of +2 week lead time adjustment.",
+                "3. Source temporary local suppliers for raw materials."
+            ],
+            "impact_data": [90, 85, 80, 82, 88, 92, 95], # Dip then stabilize
+            "impact_label": "Inventory Health Index"
+        }
+
+    # FALLBACK (GENERIC)
+    else:
+        return {
+            "status": "ANALYZING PATTERNS",
+            "color": "#00CCFF",
+            "confidence": "75.0%",
+            "analysis": "Input received. Cross-referencing internal historical data with external market signals.",
+            "strategy": "DATA ENRICHMENT REQUIRED",
+            "actions": [
+                "1. Clarify specific metric target (Revenue vs Risk).",
+                "2. Run deeper diagnostic on current operational parameters.",
+                "3. Monitor for signal noise reduction."
+            ],
+            "impact_data": [50, 55, 53, 58, 60, 62, 65],
+            "impact_label": "Operational Efficiency"
+        }
+
+# =========================
+# 3. UI LAYOUT
 # =========================
 
-def draw_neural_mesh_optimized():
-    """Generates the 3D Brain Visualization with fewer polygons for speed"""
-    X = get_neural_data() # Pulls from cache
+# --- HEADER ---
+col1, col2 = st.columns([3, 1])
+with col1:
+    st.markdown("<h1>INTENT AI <span style='font-weight:lighter; opacity:0.6'>| DECISION OS</span></h1>", unsafe_allow_html=True)
+with col2:
+    st.markdown(f"<div style='text-align:right; font-family:monospace; color:#00FFC2'>SYS: ONLINE<br>{datetime.now().strftime('%H:%M:%S UTC')}</div>", unsafe_allow_html=True)
+
+st.markdown("---")
+
+# --- INPUT SECTION ---
+st.markdown("### 1. EXECUTIVE INPUT STREAM")
+default_text = "System Alert: A major cyber-security vulnerability has been detected in our legacy ERP system. Estimated exposure includes 1.2M customer records. What is the immediate strategic action and projected impact on brand equity?"
+query = st.text_area("Enter Context / Data Signal:", value=default_text, height=100, label_visibility="collapsed")
+
+if st.button("GENERATE STRATEGIC DIRECTIVE"):
     
-    # Nodes
-    trace_nodes = go.Scatter3d(
-        x=X[:, 0], y=X[:, 1], z=X[:, 2],
-        mode='markers',
-        marker=dict(size=3, color='#FFFFFF', opacity=0.8), # Reduced opacity calc
-        hoverinfo='none'
-    )
+    # --- FAKE PROCESSING ANIMATION (Immersion) ---
+    progress_bar = st.progress(0)
+    status_text = st.empty()
     
-    # Pre-calculated simpler edges
-    x_lines, y_lines, z_lines = [], [], []
-    # Only draw 20% of lines to save rendering time
-    for i in range(0, len(X)-1, 2): 
-        x_lines += [X[i, 0], X[i+1, 0], None]
-        y_lines += [X[i, 1], X[i+1, 1], None]
-        z_lines += [X[i, 2], X[i+1, 2], None]
-
-    trace_edges = go.Scatter3d(
-        x=x_lines, y=y_lines, z=z_lines,
-        mode='lines',
-        line=dict(color='#00FF99', width=1),
-        opacity=0.3,
-        hoverinfo='none'
-    )
-
-    layout = go.Layout(
-        scene=dict(
-            xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
-            bgcolor='rgba(0,0,0,0)'
-        ),
-        paper_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, b=0, t=0),
-        showlegend=False,
-        height=300 # Fixed height to prevent layout shift
-    )
-    return go.Figure(data=[trace_edges, trace_nodes], layout=layout)
-
-def generate_pdf_brief(text, category, action):
-    buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
-    c.drawString(50, 750, f"INTENT AI // {category}")
-    c.drawString(50, 730, f"DIRECTIVE: {action}")
-    c.drawString(50, 710, f"INPUT: {text[:50]}...")
-    c.save()
-    buffer.seek(0)
-    return buffer
-
-# =========================
-# 5. UI LAYOUT (ACCESSIBILITY OPTIMIZED)
-# =========================
-
-# SIDEBAR
-with st.sidebar:
-    st.markdown("### INTENT AI v2.0")
-    st.markdown("---")
-    st.metric("SYSTEM LATENCY", "12ms", "-4ms")
-    st.metric("UPTIME", "99.99%")
-
-# MAIN HEADER (H1 for SEO)
-c1, c2 = st.columns([4,1])
-with c1:
-    st.markdown("<h1>STRATEGIC DECISION CORE</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p class='mono-text'>// SYSTEM DATE: {datetime.now().strftime('%Y-%m-%d')}</p>", unsafe_allow_html=True)
-with c2:
-    st.markdown("<div style='text-align:right; padding-top:20px;'><span class='status-dot'></span> ONLINE</div>", unsafe_allow_html=True)
-
-# INPUT SECTION
-st.markdown("<div class='glass-panel'>", unsafe_allow_html=True)
-st.markdown("<h2>EXECUTIVE INPUT STREAM</h2>", unsafe_allow_html=True) # H2 for Hierarchy
-user_input = st.text_area("COMMAND LINE", height=70, placeholder="Enter strategic query...", label_visibility="collapsed")
-
-col_btn, col_info = st.columns([1, 4])
-with col_btn:
-    run_btn = st.button("EXECUTE")
-with col_info:
-    st.markdown("<div class='mono-text' style='margin-top: 15px;'>MODEL: INTENT-L7 (CACHED)</div>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
-
-# LOGIC EXECUTION
-if run_btn and user_input:
-    # 1. Instant Feedback (No fake loading bars that block interaction)
-    with st.spinner("PROCESSING..."):
-        score, category, action, color = analyze_intent_logic(user_input)
-
-    # 2. Results Dashboard
-    st.markdown("<h2>INTELLIGENCE REPORT</h2>", unsafe_allow_html=True)
+    stages = [
+        "Connecting to Neural Lattice...",
+        "Ingesting Live ERP Data...",
+        "Running Risk Simulation Models (Monte Carlo)...",
+        "Synthesizing Strategic Options...",
+        "Finalizing Directive..."
+    ]
     
-    k1, k2, k3 = st.columns(3)
-    k1.markdown(f"<div class='glass-panel' style='border-left: 4px solid {color}'><strong>SIGNAL</strong><br>{category}</div>", unsafe_allow_html=True)
-    k2.markdown(f"<div class='glass-panel' style='border-left: 4px solid {color}'><strong>PROBABILITY</strong><br><span style='font-size:2rem'>{score}%</span></div>", unsafe_allow_html=True)
-    k3.markdown(f"<div class='glass-panel'><strong>DIRECTIVE</strong><br>{action}</div>", unsafe_allow_html=True)
-
-    # 3. Visuals & Export
-    v1, v2 = st.columns([2, 1])
+    for i, stage in enumerate(stages):
+        status_text.markdown(f"<p class='mono' style='color:#00FFC2'> > {stage}</p>", unsafe_allow_html=True)
+        progress_bar.progress((i + 1) * 20)
+        time.sleep(0.3) # Fast but noticeable
     
-    with v1:
-        st.markdown("<div class='glass-panel'>", unsafe_allow_html=True)
-        st.markdown("<h3>IMPACT HORIZON</h3>", unsafe_allow_html=True)
-        # Simplified Chart Logic
-        df = pd.DataFrame({'Date': pd.date_range(start=datetime.now(), periods=10), 'Value': np.random.randn(10).cumsum() + 100})
-        fig = px.area(df, x='Date', y='Value')
-        fig.update_layout(height=250, margin=dict(l=0,r=0,t=0,b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-        fig.update_traces(line_color=color)
+    status_text.empty()
+    progress_bar.empty()
+
+    # --- GET LOGIC ---
+    response = get_strategic_response(query)
+
+    # --- RESULTS DASHBOARD ---
+    st.markdown("### 2. INTELLIGENCE REPORT")
+    
+    # Top Metrics Row
+    m1, m2, m3 = st.columns(3)
+    
+    with m1:
+        st.markdown(f"""
+        <div class="metric-card" style="border-left: 4px solid {response['color']}">
+            <div class="subtext">SIGNAL STATUS</div>
+            <div style="font-size: 1.5em; font-weight: bold; color: {response['color']}">{response['status']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with m2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="subtext">AI CONFIDENCE</div>
+            <div style="font-size: 1.5em; font-weight: bold;">{response['confidence']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with m3:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="subtext">MODEL USED</div>
+            <div style="font-size: 1.5em; font-weight: bold; font-family:monospace">INTENT-L7</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Main Content Split
+    c1, c2 = st.columns([1, 1])
+
+    # Left: Text Strategy
+    with c1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3 style="margin-top:0">SITUATION ANALYSIS</h3>
+            <p>{response['analysis']}</p>
+            <hr style="border-color:#333">
+            <h3 style="color:{response['color']}">RECOMMENDED STRATEGY</h3>
+            <p style="font-size:1.1em; font-weight:bold">{response['strategy']}</p>
+            <ul style="line-height: 1.8;">
+                {''.join([f'<li>{action}</li>' for action in response['actions']])}
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Right: Chart Simulation
+    with c2:
+        st.markdown(f"<div class='metric-card'><div class='subtext'>SIMULATION: {response['impact_label']}</div>", unsafe_allow_html=True)
+        
+        # Plotly Dark Mode Chart
+        dates = pd.date_range(start=datetime.now(), periods=7)
+        fig = go.Figure()
+        
+        # Area chart
+        fig.add_trace(go.Scatter(
+            x=dates, 
+            y=response['impact_data'], 
+            fill='tozeroy',
+            mode='lines+markers',
+            line=dict(color=response['color'], width=3),
+            marker=dict(size=8, color='#FFF'),
+            name='Projection'
+        ))
+        
+        # Styling the chart to blend with the app
+        fig.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='#E0E0E0'),
+            margin=dict(l=0, r=0, t=10, b=0),
+            height=250,
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=True, gridcolor='#333')
+        )
         st.plotly_chart(fig, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
-        
-    with v2:
-        st.markdown("<div class='glass-panel'>", unsafe_allow_html=True)
-        st.markdown("<h3>NEURAL TOPOLOGY</h3>", unsafe_allow_html=True)
-        st.plotly_chart(draw_neural_mesh_optimized(), use_container_width=True)
-        
-        pdf_data = generate_pdf_brief(user_input, category, action)
-        st.download_button("⬇ EXPORT BRIEF", data=pdf_data, file_name="brief.pdf", mime="application/pdf")
-        st.markdown("</div>", unsafe_allow_html=True)
+
+else:
+    # Idle State visuals
+    st.info("System Ready. Awaiting Executive Input...")
+    st.markdown("<div style='opacity:0.3; text-align:center; margin-top:50px'>INTENT AI NEURAL TOPOLOGY v2.04</div>", unsafe_allow_html=True)
+
 
