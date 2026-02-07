@@ -11,4 +11,5 @@ streamlit
 pandas
 plotly
 reportlab
+scikit-learn
 
