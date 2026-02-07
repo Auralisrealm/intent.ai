@@ -4,5 +4,3 @@ numpy
 plotly
 scikit-learn
 reportlab
-python-dotenv
-openai
