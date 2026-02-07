@@ -4,6 +4,7 @@ import numpy as np
 import time
 import io
 import random
+from datetime import datetime, timedelta
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import plotly.graph_objects as go
@@ -11,118 +12,157 @@ import plotly.express as px
 from sklearn.datasets import make_blobs
 
 # =========================
-# 1. TRIPLE-A CONFIGURATION
+# 1. ENTERPRISE OS CONFIGURATION
 # =========================
 st.set_page_config(
-    page_title="Intent AI | Decision Intelligence",
+    page_title="Intent AI | Enterprise OS",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # =========================
-# 2. ADVANCED CSS (GLASSMORPHISM & CYBERPUNK)
+# 2. STRATEGIC UI THEME (THE "PALANTIR" LOOK)
 # =========================
 st.markdown("""
 <style>
-    /* GLOBAL THEME */
+    /* CORE OS THEME */
     .stApp {
-        background-color: #050505;
-        background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%);
+        background-color: #000000;
         color: #E0E0E0;
     }
     
-    /* CUSTOM FONTS */
-    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&display=swap');
+    /* TYPOGRAPHY */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Rajdhani', sans-serif;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .stCode, .stCode blockquote {
+        font-family: 'JetBrains Mono', monospace;
     }
 
-    /* GLASSMORPHISM CARDS */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 20px;
+    /* GLASS PANEL CONTAINERS */
+    .os-card {
+        background: rgba(20, 20, 20, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 24px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* STATUS INDICATORS */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
     }
 
-    /* NEON TEXT & HEADERS */
+    /* HEADERS */
     h1 {
-        font-weight: 700;
-        background: -webkit-linear-gradient(45deg, #00C9FF, #92FE9D);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-transform: uppercase;
-        letter-spacing: 2px;
+        font-weight: 600;
+        letter-spacing: -1px;
+        color: #ffffff;
     }
     
     h3 {
-        color: #00C9FF;
-        letter-spacing: 1px;
-        border-bottom: 1px solid #333;
-        padding-bottom: 10px;
-    }
-
-    /* BUTTON STYLING */
-    .stButton>button {
-        background: linear-gradient(90deg, #0061ff 0%, #60efff 100%);
-        color: #000;
-        font-weight: bold;
-        border: none;
-        border-radius: 4px;
-        height: 50px;
-        width: 100%;
+        color: #888;
+        font-size: 0.9rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-        transition: all 0.3s ease;
+        margin-bottom: 15px;
+    }
+
+    /* BUTTONS - STRATEGIC ACTION STYLE */
+    .stButton>button {
+        background: #FFFFFF;
+        color: #000000;
+        font-weight: 600;
+        border: none;
+        border-radius: 4px;
+        height: 45px;
+        width: 100%;
+        transition: all 0.2s ease;
     }
     .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 20px rgba(0, 201, 255, 0.5);
+        background: #CCCCCC;
+        transform: translateY(-1px);
     }
     
-    /* REMOVE STREAMLIT BRANDING */
+    /* REMOVE CLUTTER */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    header {visibility: hidden;}
     
     /* SIDEBAR */
     section[data-testid="stSidebar"] {
-        background-color: #0a0a0a;
-        border-right: 1px solid #333;
+        background-color: #050505;
+        border-right: 1px solid #222;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# 3. HIGH-TECH VISUALIZATION FUNCTIONS
+# 3. INTELLIGENCE ENGINE FUNCTIONS
 # =========================
 
-def draw_neural_network_3d():
-    """Generates a 3D rotating brain/network graph to look 'Trillion Dollar'"""
-    # Generate 3D clusters
-    X, y = make_blobs(n_samples=100, centers=4, n_features=3, random_state=42)
+def analyze_intent_logic(text):
+    """
+    Simulates a sophisticated NLP decision engine.
+    Detects context, urgency, and strategic category.
+    """
+    text = text.lower()
+    
+    # 1. RISK DETECTION
+    high_risk_triggers = ['high', 'critical', 'urgent', 'fail', 'loss', 'danger', 'crash', 'emergency', 'breach']
+    medium_risk_triggers = ['warning', 'check', 'verify', 'fluctuation', 'monitor', 'risk']
+    
+    risk_score = 0
+    if any(word in text for word in high_risk_triggers):
+        risk_score = random.randint(85, 99)
+    elif any(word in text for word in medium_risk_triggers):
+        risk_score = random.randint(45, 75)
+    else:
+        risk_score = random.randint(12, 35) # Default to stable/low risk
+        
+    # 2. CATEGORY DETECTION
+    if risk_score > 80:
+        category = "CRITICAL THREAT MITIGATION"
+        action = "IMMEDIATE INTERVENTION REQUIRED"
+        color = "#FF3B30" # Enterprise Red
+    elif risk_score > 40:
+        category = "STRATEGIC ALERT"
+        action = "MONITORING PROTOCOLS ACTIVE"
+        color = "#FFCC00" # Warning Yellow
+    else:
+        category = "OPERATIONAL OPTIMIZATION"
+        action = "GROWTH VECTOR IDENTIFIED"
+        color = "#34C759" # Success Green
+        
+    return risk_score, category, action, color
+
+def draw_network_topology():
+    """Generates the 'Brain' of the OS"""
+    # Create a cleaner, more geometric 3D network
+    X, y = make_blobs(n_samples=60, centers=3, n_features=3, random_state=int(time.time()))
     
     trace_nodes = go.Scatter3d(
         x=X[:, 0], y=X[:, 1], z=X[:, 2],
         mode='markers',
-        marker=dict(
-            size=5,
-            color=y,
-            colorscale='Viridis',
-            opacity=0.8
-        ),
-        name='Neural Nodes'
+        marker=dict(size=4, color='#ffffff', opacity=0.8),
+        name='Data Nodes'
     )
     
-    # Create random connections (synapses)
+    # Elegant connections
     x_lines, y_lines, z_lines = [], [], []
     for i in range(len(X)-1):
-        if random.random() > 0.9: # 10% connection rate
+        if random.random() > 0.85:
             x_lines.extend([X[i, 0], X[i+1, 0], None])
             y_lines.extend([X[i, 1], X[i+1, 1], None])
             z_lines.extend([X[i, 2], X[i+1, 2], None])
@@ -130,9 +170,9 @@ def draw_neural_network_3d():
     trace_edges = go.Scatter3d(
         x=x_lines, y=y_lines, z=z_lines,
         mode='lines',
-        line=dict(color='#00C9FF', width=1),
-        opacity=0.3,
-        name='Synapses'
+        line=dict(color='#888888', width=1),
+        opacity=0.2,
+        name='Neural Pathways'
     )
 
     layout = go.Layout(
@@ -146,45 +186,45 @@ def draw_neural_network_3d():
         margin=dict(l=0, r=0, b=0, t=0),
         showlegend=False
     )
-    
-    fig = go.Figure(data=[trace_edges, trace_nodes], layout=layout)
-    return fig
+    return go.Figure(data=[trace_edges, trace_nodes], layout=layout)
 
-def generate_enterprise_pdf(text, risk_score, intent_type):
+def generate_strategic_memo(text, score, category, action):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
     
-    # Dark Mode PDF logic is hard, stick to clean enterprise white
+    # Enterprise Memo Formatting
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, 750, "INTENT AI // EXECUTIVE STRATEGY BRIEF")
+    
     c.setStrokeColorRGB(0, 0, 0)
+    c.line(50, 740, 550, 740)
     
-    # Header
-    c.setFillColorRGB(0.1, 0.1, 0.3)
-    c.rect(0, 750, 612, 50, fill=1, stroke=0)
-    c.setFillColorRGB(1, 1, 1)
-    c.setFont("Helvetica-Bold", 18)
-    c.drawString(40, 765, "INTENT AI | INTELLIGENCE BRIEF")
+    c.setFont("Helvetica", 10)
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
+    c.drawString(50, 720, f"GENERATED: {current_date}")
+    c.drawString(50, 705, f"CLEARANCE: LEVEL 1 (EXECUTIVE)")
     
-    # Metadata
-    c.setFillColorRGB(0, 0, 0)
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(40, 730, f"REF: {random.randint(100000, 999999)}-SECURE")
-    c.drawString(450, 730, f"DATE: {time.strftime('%Y-%m-%d')}")
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, 670, "1. SITUATION ANALYSIS")
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 655, f"CLASSIFICATION: {category}")
+    c.drawString(50, 640, f"PROBABILITY INDEX: {score}%")
     
-    # Metrics
-    c.setFont("Helvetica", 12)
-    c.drawString(40, 680, f"DETECTED INTENT: {intent_type.upper()}")
-    c.drawString(40, 660, f"RISK PROBABILITY: {risk_score}%")
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, 610, "2. RECOMMENDED ACTION")
+    c.setFont("Helvetica", 11)
+    c.drawString(50, 595, f"{action}")
     
-    # Analysis
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(40, 620, "EXECUTIVE DECODING:")
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, 560, "3. DECODED SIGNAL")
     
-    text_obj = c.beginText(40, 600)
-    text_obj.setFont("Helvetica", 11)
+    # Text wrap logic
+    text_obj = c.beginText(50, 540)
+    text_obj.setFont("Helvetica", 10)
     words = text.split()
     line = ""
     for word in words:
-        if len(line + word) > 80:
+        if len(line + word) > 95:
             text_obj.textLine(line)
             line = ""
         line += word + " "
@@ -196,120 +236,169 @@ def generate_enterprise_pdf(text, risk_score, intent_type):
     return buffer
 
 # =========================
-# 4. SIDEBAR NAVIGATION
+# 4. SIDEBAR - OS NAVIGATION
 # =========================
 with st.sidebar:
-    st.markdown("## 🧠 INTENT AI")
-    st.markdown("### ENTERPRISE CORE")
+    st.markdown("## INTENT AI")
+    st.caption("v 2.4.0 | ENTERPRISE OS")
     
     st.markdown("---")
-    menu = st.radio("MODULE SELECTOR", ["Command Center", "Data Lake Ingestion", "System Logs"])
+    menu = st.radio("SYSTEM MODULES", 
+        ["Strategic Decision Core", "Data Ingestion", "Global Logs"],
+        label_visibility="collapsed"
+    )
     st.markdown("---")
     
-    # Fake System Stats
-    st.metric("Neural Uplink", "42ms", "Stable")
-    st.metric("Model Confidence", "99.8%", "+0.2%")
+    # Live System Telemetry
+    col1, col2 = st.columns(2)
+    col1.metric("LATENCY", "12ms")
+    col2.metric("UPTIME", "99.99%")
     
-    st.markdown("---")
-    st.caption("© 2024 Intent AI Systems. Restricted Access.")
+    st.markdown("### CONNECTED NODES")
+    st.code("CRM: Salesforce\nERP: SAP S/4HANA\nDATA: Snowflake", language="text")
 
 # =========================
-# 5. MAIN INTERFACE
+# 5. MAIN APPLICATION LOGIC
 # =========================
 
-if menu == "Command Center":
-    # HEADER
-    col_h1, col_h2 = st.columns([3, 1])
-    with col_h1:
-        st.title("Strategic Decision Engine")
-        st.markdown("*Autonomous Semantic Analysis & Predictive Modeling*")
-    with col_h2:
-        st.image("https://cdn-icons-png.flaticon.com/512/9626/9626620.png", width=80) # Placeholder for futuristic icon
-
-    st.divider()
-
-    # INPUT SECTION (GLASS CARD)
-    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown("### 📡 INCOMING TRANSMISSION")
-    user_input = st.text_area("Enter raw unstructured data, logs, or strategic directives:", height=100, placeholder="Waiting for signal...")
+if menu == "Strategic Decision Core":
     
-    col_act1, col_act2 = st.columns([1, 4])
-    with col_act1:
-        analyze_btn = st.button("INITIATE DECODE")
-    with col_act2:
-        st.caption("Pressing initiate will trigger the Layer-7 Neural Mesh for immediate semantic extraction.")
+    # TOP HEADER - OS STYLE
+    col_t1, col_t2 = st.columns([4, 1])
+    with col_t1:
+        st.title("Strategic Decision Core")
+        st.caption(f"SYSTEM DATE: {datetime.now().strftime('%A, %B %d, %Y')}")
+    with col_t2:
+        # Status Light
+        st.markdown('<div style="text-align:right; color:#34C759; font-weight:bold;">● SYSTEM ONLINE</div>', unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # INPUT INTERFACE
+    st.markdown('<div class="os-card">', unsafe_allow_html=True)
+    st.markdown("### 📥 EXECUTIVE INPUT STREAM")
+    user_input = st.text_area("Enter market signal, internal query, or raw strategic data:", height=80, label_visibility="collapsed", placeholder="Example: 'Competitor X is lowering prices by 15% in the APAC region. Is this a high risk to our Q3 margin?'")
+    
+    col_btn, col_info = st.columns([1, 3])
+    with col_btn:
+        run_analysis = st.button("RUN DECISION ENGINE")
+    with col_info:
+        st.caption("AI Model: Intent-L7 (Strategy Optimized) | Processing Layer: Real-time")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # LOGIC EXECUTION
-    if analyze_btn and user_input:
+    if run_analysis and user_input:
         
-        # 1. THE "WOW" LOADING EFFECT
-        with st.status("⚡ ENGAGING NEURAL MESH...", expanded=True) as status:
-            st.write("🔹 Tokenizing raw input streams...")
-            time.sleep(0.8)
-            st.write("🔹 Aligning vector embeddings...")
-            time.sleep(0.8)
-            st.write("🔹 Cross-referencing Global Risk Database...")
-            time.sleep(0.7)
-            st.write("🔹 Calculating predictive horizons...")
-            time.sleep(0.5)
-            status.update(label="✅ INTELLIGENCE ACQUIRED", state="complete", expanded=False)
-
-        # 2. DETERMINE OUTPUT (Simulated)
-        risk_score = random.randint(75, 98) if "fail" in user_input or "risk" in user_input else random.randint(12, 35)
-        intent_type = "CRITICAL THREAT" if risk_score > 60 else "OPERATIONAL OPTIMIZATION"
-        color_code = "#FF4B4B" if risk_score > 60 else "#00CC96"
-
-        # 3. DASHBOARD ROW 1: METRICS & 3D GRAPH
-        col1, col2 = st.columns([1, 2])
+        # 1. PROCESSING SIMULATION
+        progress_bar = st.progress(0)
+        status_text = st.empty()
         
-        with col1:
+        steps = [
+            "Parsing semantic intent...",
+            "Accessing historical performance records...",
+            "Simulating 10,000 strategic scenarios...",
+            "Formulating optimal decision path..."
+        ]
+        
+        for i, step in enumerate(steps):
+            status_text.markdown(f"**// {step}**")
+            progress_bar.progress((i + 1) * 25)
+            time.sleep(0.4) # Fast but noticeable
+            
+        status_text.empty()
+        progress_bar.empty()
+        
+        # 2. CALCULATE RESULTS
+        risk_score, category, action, color_code = analyze_intent_logic(user_input)
+        
+        # 3. RESULTS DASHBOARD
+        st.markdown(f"### ⚡ DECISION INTELLIGENCE OUTPUT")
+        
+        # Top Row: KPI Cards
+        c1, c2, c3 = st.columns(3)
+        
+        with c1:
             st.markdown(f"""
-            <div class="glass-card" style="text-align:center;">
-                <h2 style="color:{color_code}; font-size: 3rem; margin:0;">{risk_score}%</h2>
-                <p style="text-transform:uppercase; letter-spacing:2px;">Risk Probability</p>
-                <hr style="border-color: #333;">
-                <h4 style="color:white;">INTENT: {intent_type}</h4>
+            <div class="os-card" style="border-left: 4px solid {color_code};">
+                <h3 style="margin:0">DECISION SIGNAL</h3>
+                <h2 style="color:#fff; margin-top:5px;">{category}</h2>
             </div>
             """, unsafe_allow_html=True)
             
-            # Download Report
-            pdf_bytes = generate_enterprise_pdf(user_input, risk_score, intent_type)
-            st.download_button("📄 EXPORT CLASSIFIED BRIEF", pdf_bytes, "intent_ai_brief.pdf", "application/pdf")
+        with c2:
+            st.markdown(f"""
+            <div class="os-card" style="border-left: 4px solid {color_code};">
+                <h3 style="margin:0">PREDICTED IMPACT</h3>
+                <h2 style="color:{color_code}; margin-top:5px;">{risk_score}/100</h2>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with c3:
+            st.markdown(f"""
+            <div class="os-card" style="border-left: 4px solid #fff;">
+                <h3 style="margin:0">RECOMMENDED ACTION</h3>
+                <p style="color:#fff; font-size:1.1rem; font-weight:600; margin-top:5px;">{action}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-        with col2:
-            st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.markdown("#### 🧬 SEMANTIC NETWORK TOPOLOGY")
-            st.plotly_chart(draw_neural_network_3d(), use_container_width=True)
+        # Bottom Row: Visuals & Projection
+        col_vis1, col_vis2 = st.columns([2, 1])
+        
+        with col_vis1:
+            st.markdown('<div class="os-card">', unsafe_allow_html=True)
+            st.markdown("### 📈 PROJECTED OUTCOME TRAJECTORY")
+            
+            # Dynamic Dates for Chart
+            dates = [datetime.now() + timedelta(days=i) for i in range(14)]
+            
+            # Logic for curve based on risk
+            base = 100
+            if risk_score > 70:
+                # Downward trend simulation
+                values = [base - (i * random.uniform(2, 5)) for i in range(14)]
+            else:
+                # Upward trend simulation
+                values = [base + (i * random.uniform(1, 4)) for i in range(14)]
+                
+            df_chart = pd.DataFrame({"Date": dates, "Index": values})
+            
+            fig = px.area(df_chart, x="Date", y="Index", template="plotly_dark")
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                xaxis=dict(showgrid=False),
+                yaxis=dict(showgrid=True, gridcolor='#333'),
+                margin=dict(l=0, r=0, t=10, b=0),
+                height=300
+            )
+            fig.update_traces(line_color=color_code, fillcolor=color_code.replace(")", ", 0.2)"))
+            st.plotly_chart(fig, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+        with col_vis2:
+            st.markdown('<div class="os-card">', unsafe_allow_html=True)
+            st.markdown("### 🕸️ CONTEXT TOPOLOGY")
+            st.plotly_chart(draw_network_topology(), use_container_width=True)
+            
+            # Download Button
+            pdf_data = generate_strategic_memo(user_input, risk_score, category, action)
+            st.download_button(
+                label="📄 DOWNLOAD STRATEGY MEMO",
+                data=pdf_data,
+                file_name=f"IntentAI_Strategy_{datetime.now().strftime('%Y%m%d')}.pdf",
+                mime="application/pdf"
+            )
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # 4. DASHBOARD ROW 2: PREDICTIVE CHARTS
-        st.markdown("### 🔮 PREDICTIVE HORIZON")
-        
-        # Fake Data for Chart
-        dates = pd.date_range(start="2024-01-01", periods=10)
-        base_val = 50
-        values = [base_val + (i * random.randint(-5, 10)) for i in range(10)]
-        df_chart = pd.DataFrame({"Date": dates, "Metric": values})
-        
-        fig_line = px.area(df_chart, x="Date", y="Metric", title="Projected Impact Trajectory")
-        fig_line.update_layout(
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            font_color='#E0E0E0',
-            xaxis_showgrid=False,
-            yaxis_showgrid=True,
-            yaxis_gridcolor='#333'
-        )
-        fig_line.update_traces(line_color=color_code)
-        
-        st.plotly_chart(fig_line, use_container_width=True)
+elif menu == "Data Ingestion":
+    st.title("Secure Data Pipeline")
+    st.info("Enterprise Gateway: CONNECTED (TLS 1.3)")
+    st.file_uploader("Upload Encrypted Enterprise Data (CSV/JSON/Parquet)")
 
-elif menu == "Data Lake Ingestion":
-    st.title("💾 Data Lake Ingestion")
-    st.info("Secure connection to enterprise data warehouses established.")
-    
-    uploaded_file = st.file_uploader("Upload Encrypted Dataset (CSV)", type="csv")
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        st.dataframe(df, use_container_width=True)
+elif menu == "Global Logs":
+    st.title("System Audit Logs")
+    st.code(f"""
+    [INFO] {datetime.now().strftime('%H:%M:%S')} - Model weights synchronized.
+    [INFO] {datetime.now().strftime('%H:%M:%S')} - Latency check: 14ms.
+    [WARN] {(datetime.now() - timedelta(minutes=5)).strftime('%H:%M:%S')} - External API rate limit approaching.
+    [INFO] {(datetime.now() - timedelta(minutes=10)).strftime('%H:%M:%S')} - User session authenticated.
+    """)
